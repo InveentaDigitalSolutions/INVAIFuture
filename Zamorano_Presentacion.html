@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universidad Zamorano · El presente tecnológico y su potencial</title>
+<style>
+  :root{
+    --dark:#14352A; --dark2:#102A20; --cream:#F4F0E6; --paper:#FBF9F3; --ink:#1E2A24;
+    --brass:#C49A3F; --brassd:#9C7A2E; --sage:#6E8B7B; --muted:#6E7A72; --line:#E0D9C8; --white:#FFFFFF;
+    --serif:Georgia,'Times New Roman',serif;
+    --sans:'Calibri','Segoe UI',system-ui,-apple-system,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--sans);background:radial-gradient(130% 130% at 75% -8%,#1c5240,#0c2519 60%);color:var(--ink);overflow:hidden}
+  #fx{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+  .progress{position:fixed;top:0;left:0;height:3px;background:var(--brass);width:0;z-index:60;transition:width .35s ease}
+  .lh{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;justify-content:space-between;align-items:center;
+    padding:15px 5vw 10px;font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+  .lh b{font-weight:700}
+
+  .deck{position:fixed;inset:0;z-index:1}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;
+    padding:11vh 5vw 8vh;overflow:auto;opacity:0;visibility:hidden;pointer-events:none}
+  .slide.active{opacity:1;visibility:visible;pointer-events:auto;z-index:3}
+  .slide.leaving{visibility:visible;z-index:2}
+  /* directional, time-travel transitions (avanzar = viajar en el tiempo) */
+  .slide.enter-next{animation:enterNext .72s cubic-bezier(.22,1,.36,1) both}
+  .slide.leave-next{animation:leaveNext .72s cubic-bezier(.5,0,.75,0) both}
+  .slide.enter-prev{animation:enterPrev .72s cubic-bezier(.22,1,.36,1) both}
+  .slide.leave-prev{animation:leavePrev .72s cubic-bezier(.5,0,.75,0) both}
+  @keyframes enterNext{from{opacity:0;transform:translateX(9vw) scale(.985);filter:blur(9px)}to{opacity:1;transform:none;filter:blur(0)}}
+  @keyframes leaveNext{from{opacity:1;transform:none;filter:blur(0)}to{opacity:0;transform:translateX(-8vw) scale(.965);filter:blur(9px)}}
+  @keyframes enterPrev{from{opacity:0;transform:translateX(-9vw) scale(.985);filter:blur(9px)}to{opacity:1;transform:none;filter:blur(0)}}
+  @keyframes leavePrev{from{opacity:1;transform:none;filter:blur(0)}to{opacity:0;transform:translateX(8vw) scale(.965);filter:blur(9px)}}
+  @media(prefers-reduced-motion:reduce){.slide[class*="enter-"],.slide[class*="leave-"]{animation:none!important}}
+  /* warp: destello sutil de "viaje" al cambiar de slide (en paleta, breve, elegante) */
+  .warp{position:fixed;inset:0;z-index:50;pointer-events:none;opacity:0;
+    background:repeating-conic-gradient(from 0deg at 50% 50%,
+      rgba(196,154,63,0) 0deg, rgba(196,154,63,0) 1.3deg,
+      rgba(196,154,63,.18) 1.55deg, rgba(196,154,63,0) 1.85deg);
+    -webkit-mask:radial-gradient(circle at 50% 50%, transparent 14%, #000 62%);
+            mask:radial-gradient(circle at 50% 50%, transparent 14%, #000 62%);
+    will-change:transform,opacity}
+  .warp.run{animation:warpz .52s cubic-bezier(.3,.6,.2,1)}
+  @keyframes warpz{0%{opacity:0;transform:scale(.35)}30%{opacity:.55}100%{opacity:0;transform:scale(2.3)}}
+  @media(prefers-reduced-motion:reduce){.warp{display:none}}
+
+  /* entrance motion */
+  .slide.active .wrap>*{opacity:0;animation:rise .6s cubic-bezier(.2,.7,.2,1) forwards}
+  .slide.active .wrap>*:nth-child(1){animation-delay:.05s}
+  .slide.active .wrap>*:nth-child(2){animation-delay:.15s}
+  .slide.active .wrap>*:nth-child(3){animation-delay:.25s}
+  .slide.active .wrap>*:nth-child(4){animation-delay:.35s}
+  @keyframes rise{from{opacity:0;transform:translateY(26px) scale(.985);filter:blur(5px)}to{opacity:1;transform:none;filter:blur(0)}}
+
+  /* pioneer cards — hero banner + real logo */
+  .pcols{display:grid;grid-template-columns:1fr 1fr;gap:1.9rem;margin-top:1.5rem;align-items:stretch}
+  .pcard{background:var(--white);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+    box-shadow:0 16px 38px rgba(20,53,42,.13);display:flex;flex-direction:column}
+  .pbanner{height:auto;position:static;background:none;padding:1.7rem 1.8rem 0}
+  .pic{position:static;width:66px;height:66px;border-radius:16px;background:#fff;border:1px solid var(--line);
+    box-shadow:0 6px 16px rgba(20,53,42,.12);display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .pic .plogo{width:100%;height:100%;object-fit:contain;padding:11px;display:none}
+  .pic .picon{display:flex;position:absolute;inset:0;align-items:center;justify-content:center}
+  .pic .picon svg{width:35px;height:35px}
+  .pbody{padding:1rem 1.8rem 1.8rem;display:flex;flex-direction:column;flex:1}
+  .pname{font-family:var(--serif);font-weight:700;font-size:clamp(1.5rem,2.5vw,2rem);color:var(--dark);line-height:1}
+  .pdomain{font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;color:var(--brassd);font-weight:700;margin-top:.35rem}
+  .pwhy{font-size:clamp(.98rem,1.3vw,1.08rem);color:var(--muted);line-height:1.5;margin-top:.8rem}
+  .ptag{align-self:flex-start;margin-top:1rem;font-size:.68rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:#fff;background:var(--brassd);padding:.3rem .65rem;border-radius:5px}
+  .pnews{font-size:clamp(1rem,1.35vw,1.12rem);color:var(--ink);line-height:1.5;margin-top:.55rem}
+  .pdata{margin-top:auto;padding-top:1rem;border-top:1px solid var(--line);font-weight:700;color:var(--brassd);font-size:clamp(.98rem,1.3vw,1.06rem);line-height:1.4}
+
+  /* cinematic transition curtain — varied directions */
+  .curtain{position:fixed;inset:0;z-index:55;pointer-events:none;transform:translateX(-101%);
+    background:linear-gradient(120deg,#0b2419 0%,#14352a 55%,#1c5240 100%);box-shadow:0 0 80px rgba(196,154,63,.28)}
+  .curtain .cmark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.6);opacity:0}
+  .curtain .cmark .csq{display:block;width:1.5rem;height:1.5rem;background:var(--brass);box-shadow:0 0 34px var(--brass)}
+  .curtain.run .cmark{animation:cflash .82s ease both}
+  .curtain.run.wr{animation:wr .82s cubic-bezier(.76,0,.24,1) both}
+  .curtain.run.wl{animation:wl .82s cubic-bezier(.76,0,.24,1) both}
+  .curtain.run.wd{animation:wd .82s cubic-bezier(.76,0,.24,1) both}
+  .curtain.run.wu{animation:wu .82s cubic-bezier(.76,0,.24,1) both}
+  @keyframes wr{0%{transform:translateX(-101%)}44%{transform:translateX(0)}56%{transform:translateX(0)}100%{transform:translateX(101%)}}
+  @keyframes wl{0%{transform:translateX(101%)}44%{transform:translateX(0)}56%{transform:translateX(0)}100%{transform:translateX(-101%)}}
+  @keyframes wd{0%{transform:translateY(-101%)}44%{transform:translateY(0)}56%{transform:translateY(0)}100%{transform:translateY(101%)}}
+  @keyframes wu{0%{transform:translateY(101%)}44%{transform:translateY(0)}56%{transform:translateY(0)}100%{transform:translateY(-101%)}}
+  @keyframes cflash{0%,30%{opacity:0;transform:translate(-50%,-50%) scale(.6)}48%{opacity:1;transform:translate(-50%,-50%) scale(1)}56%{opacity:1}74%,100%{opacity:0;transform:translate(-50%,-50%) scale(1.3)}}
+  @media(prefers-reduced-motion:reduce){.curtain.run{animation:none!important}.curtain.run .cmark{animation:none!important}}
+
+  /* closing quote slide */
+  .qmark{font-family:var(--serif);font-size:clamp(4rem,9vw,7rem);line-height:.5;color:var(--brass)}
+  .qbig{font-family:var(--serif);font-size:clamp(1.9rem,4.2vw,3.5rem);font-weight:700;color:var(--cream);line-height:1.2;letter-spacing:-.01em;max-width:24ch;margin-top:.8rem}
+  .qbig .accent{color:var(--brass)}
+  .qsub{font-size:clamp(1.05rem,1.7vw,1.35rem);color:#C7D3CB;margin-top:1.6rem;max-width:52ch;line-height:1.5}
+  /* decision questions */
+  .qlist{margin-top:1.5rem;display:flex;flex-direction:column}
+  .qrow{display:flex;gap:1.1rem;align-items:flex-start;padding:.85rem 0;border-top:1px solid var(--line)}
+  .qrow:first-child{border-top:none}
+  .qn{flex:none;width:38px;height:38px;border-radius:50%;background:var(--dark);color:var(--brass);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:700;font-size:1.1rem}
+  .qrow p{font-size:clamp(1.04rem,1.55vw,1.32rem);color:var(--ink);line-height:1.4;font-weight:500;padding-top:.35rem}
+  .slide.active .cards>*,.slide.active .icards>*,.slide.active .opps>*,.slide.active .stack>*,.slide.active tbody tr{opacity:0;animation:rise .5s cubic-bezier(.2,.7,.2,1) forwards}
+  .slide.active .cards>*:nth-child(1),.slide.active .icards>*:nth-child(1),.slide.active .opps>*:nth-child(1),.slide.active .stack>*:nth-child(1),.slide.active tbody tr:nth-child(1){animation-delay:.30s}
+  .slide.active .cards>*:nth-child(2),.slide.active .icards>*:nth-child(2),.slide.active .opps>*:nth-child(2),.slide.active .stack>*:nth-child(2),.slide.active tbody tr:nth-child(2){animation-delay:.40s}
+  .slide.active .cards>*:nth-child(3),.slide.active .icards>*:nth-child(3),.slide.active .opps>*:nth-child(3),.slide.active .stack>*:nth-child(3),.slide.active tbody tr:nth-child(3){animation-delay:.50s}
+  .slide.active .cards>*:nth-child(4),.slide.active .icards>*:nth-child(4),.slide.active tbody tr:nth-child(4){animation-delay:.60s}
+  .slide.active tbody tr:nth-child(5){animation-delay:.70s}
+  .slide.active .divnum{animation:pop .85s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes pop{from{opacity:0;transform:translateY(16px) scale(.93)}to{opacity:1;transform:none}}
+  .card,.icard,.opp{transition:transform .25s ease,box-shadow .25s ease}
+  .card:hover,.icard:hover{transform:translateY(-5px);box-shadow:0 16px 36px rgba(20,53,42,.14)}
+  @media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;animation-delay:0!important}
+    .slide.active .wrap>*,.slide.active .cards>*,.slide.active .icards>*,.slide.active .opps>*,.slide.active .stack>*,.slide.active tbody tr,.slide.active .timeline .era{opacity:1!important}}
+  .wrap{max-width:1200px;width:100%;margin:auto;position:relative;z-index:2}
+
+  /* light (content) is default */
+  .slide{background:var(--paper);color:var(--ink)}
+  .slide.dark{background:transparent;color:var(--cream);text-shadow:0 1px 22px rgba(0,0,0,.35)}
+  .slide.dark::before{content:"";position:absolute;left:0;top:0;bottom:0;width:.16in;width:9px;background:var(--brass)}
+
+  .kicker{display:flex;align-items:center;gap:.6rem;font-size:clamp(.7rem,.95vw,.82rem);font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--brassd);margin-bottom:.9rem}
+  .kicker .sq{width:.85rem;height:.85rem;background:var(--brass);flex:none}
+  /* arquitectura IA (super slide) */
+  .archlede{font-size:.95rem;color:var(--muted);max-width:80ch;line-height:1.45;margin:.1rem 0 .9rem}
+  .arch2{display:grid;grid-template-columns:28px 1fr 178px;gap:.5rem;align-items:stretch}
+  .arail{writing-mode:vertical-rl;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;
+    background:var(--cream);border-radius:8px;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--brassd)}
+  .acol{display:flex;flex-direction:column;gap:.4rem}
+  .alyr{display:grid;grid-template-columns:220px 1fr;gap:.7rem;align-items:center;border-radius:8px;padding:.5rem .8rem}
+  .alyr.lapp{background:#235440}.alyr.lplat{background:#1e4a3a}.alyr.ldata{background:#193f31}.alyr.linfra{background:#14352A}
+  .alyr.lbase{background:var(--brassd)}
+  .alyr .ahead b{font-family:var(--serif);font-size:.97rem;color:#fff;display:block;line-height:1.1}
+  .alyr .ahead small{font-size:.74rem;color:#D8E2DA;display:block;margin-top:.18rem;line-height:1.28}
+  .alyr.lbase .ahead small{color:#FBEFD6}
+  .achips{display:flex;flex-wrap:wrap;gap:.3rem}
+  .achips span{background:var(--paper);color:var(--ink);border-radius:5px;padding:.2rem .55rem;font-size:.74rem;border-left:2px solid var(--brass);line-height:1.25}
+  .alyr.lbase .achips span{background:#fff;border-left-color:var(--dark)}
+  .apillar{background:linear-gradient(180deg,var(--brass),var(--brassd));color:#fff;border-radius:8px;padding:.7rem .65rem;display:flex;flex-direction:column;justify-content:center;gap:.32rem;text-align:center}
+  .apillar b{font-family:var(--serif);font-size:.9rem;line-height:1.12}
+  .apillar small{font-size:.72rem;line-height:1.3;margin-bottom:.2rem}
+  .apillar .pchip{background:rgba(255,255,255,.18);border-radius:5px;padding:.2rem .45rem;font-size:.7rem;line-height:1.2}
+  @media(max-width:760px){.arch2{grid-template-columns:1fr}.arail{display:none}.alyr{grid-template-columns:1fr;gap:.35rem}}
+  /* acento ilustrado en divisores */
+  .divart{position:absolute;right:4vw;bottom:8vh;width:min(330px,30vw);opacity:.15;pointer-events:none;z-index:1}
+  .divart svg{width:100%;height:auto;display:block;stroke:var(--brass);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+  .divart svg .nd{fill:var(--brass);stroke:none}
+  @media(max-width:760px){.divart{display:none}}
+  h1{font-family:var(--serif);font-size:clamp(2.3rem,5vw,4.1rem);line-height:1.04;font-weight:700;color:var(--dark);letter-spacing:-.01em}
+  .dark h1{color:var(--cream)}
+  h2{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.7rem);line-height:1.08;font-weight:700;color:var(--dark);letter-spacing:-.005em}
+  .dark h2{color:var(--cream)}
+  .sub{font-size:clamp(1.02rem,1.6vw,1.35rem);line-height:1.5;color:var(--muted);max-width:60ch;margin-top:1.1rem}
+  .dark .sub{color:#C7D3CB}
+  .tag{font-family:var(--serif);font-style:italic;font-size:clamp(1.05rem,1.9vw,1.5rem);color:var(--sage);margin-top:1.7rem;max-width:60ch}
+  .srcfoot{margin-top:1.1rem;font-size:.8rem;font-style:italic;color:#9AA095}
+
+  /* title slide */
+  .eyebrow{font-size:clamp(.8rem,1.1vw,.95rem);font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--brass);margin-bottom:1.6rem}
+  .title-xl{font-family:var(--serif);font-size:clamp(2.8rem,6.5vw,5.2rem);line-height:1.02;font-weight:700;color:var(--cream)}
+  .lede{font-family:var(--serif);font-style:italic;font-size:clamp(1.1rem,2vw,1.6rem);color:#C7D3CB;margin-top:1.8rem;max-width:46ch}
+
+  /* section */
+  .divnum{font-family:var(--serif);font-size:clamp(6rem,18vw,13rem);font-weight:700;color:var(--brass);line-height:.8}
+  .divttl{font-family:var(--serif);font-size:clamp(2.2rem,5.5vw,4rem);font-weight:700;color:var(--cream);margin-top:.5rem;line-height:1.05}
+
+  /* stat cards */
+  .cards{display:grid;gap:1.1rem;margin-top:2rem}
+  .cards.c3{grid-template-columns:repeat(3,1fr)}
+  .cards.c4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--white);border:1px solid var(--line);border-radius:6px;padding:1.4rem 1.5rem;box-shadow:0 10px 26px rgba(20,53,42,.07)}
+  .card .num{font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:var(--dark);line-height:1;letter-spacing:-.01em}
+  .card .num.b{color:var(--brassd)}
+  .card .lbl{font-size:.94rem;color:var(--muted);margin-top:.7rem;line-height:1.4}
+  .card .csrc{display:block;margin-top:.55rem;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--brassd);font-weight:700}
+  /* history timeline */
+  .timeline{display:grid;grid-template-columns:repeat(6,1fr);gap:.55rem;margin-top:1.5rem;position:relative}
+  .timeline::before{content:"";position:absolute;left:1.2%;right:1.2%;top:7px;height:2px;background:linear-gradient(90deg,var(--line),var(--brass))}
+  .era{position:relative;padding-right:.7rem}
+  .era .dot{display:block;width:15px;height:15px;border-radius:50%;background:var(--brass);box-shadow:0 0 0 4px var(--paper);position:relative;z-index:1}
+  .era .yr{display:block;font-family:var(--serif);font-weight:700;color:var(--brassd);font-size:.98rem;margin-top:.7rem}
+  .era h3{font-size:.9rem;color:var(--dark);margin:.12rem 0 .28rem;font-weight:700;line-height:1.12}
+  .era p{font-size:.76rem;color:var(--muted);line-height:1.32}
+  .era .efacts{margin-top:.45rem;display:grid;gap:.28rem}
+  .era .ef{font-size:.74rem;line-height:1.26;padding-left:.5rem;border-left:2px solid var(--line)}
+  .era .ef.then{color:var(--muted)}
+  .era .ef.now{color:var(--brassd);font-weight:700;border-left-color:var(--brass)}
+  .era.cur .dot{width:19px;height:19px;margin-top:-2px;box-shadow:0 0 0 4px var(--paper),0 0 0 8px rgba(196,154,63,.30)}
+  .era.cur .curtag{display:inline-block;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--brass);padding:.12rem .42rem;border-radius:3px;font-weight:700;margin-top:.6rem}
+  .slide.active .timeline .era{animation:eraIn .55s cubic-bezier(.2,.7,.2,1) both}
+  .slide.active .timeline .era:nth-child(1){animation-delay:.32s}
+  .slide.active .timeline .era:nth-child(2){animation-delay:.46s}
+  .slide.active .timeline .era:nth-child(3){animation-delay:.60s}
+  .slide.active .timeline .era:nth-child(4){animation-delay:.74s}
+  .slide.active .timeline .era:nth-child(5){animation-delay:.88s}
+  .slide.active .timeline .era:nth-child(6){animation-delay:1.02s}
+  @keyframes eraIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+  .tlcallout{margin-top:1.8rem;background:var(--dark);border-radius:11px;padding:1.2rem 1.5rem;display:flex;gap:2rem;flex-wrap:wrap;align-items:center}
+  .tlcallout .big{font-family:var(--serif);font-weight:700;color:var(--brass);font-size:1.5rem;line-height:1.1;white-space:nowrap}
+  .tlcallout .big small{display:block;font-size:.78rem;color:#C7D3CB;font-weight:400;margin-top:.25rem;white-space:normal;max-width:20ch}
+  .tlcallout .txt{font-size:1.02rem;color:#E7EEE9;line-height:1.45;flex:1;min-width:240px}
+  .tlcallout .txt b{color:var(--brass)}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;margin-top:1.7rem;background:var(--white);box-shadow:0 10px 26px rgba(20,53,42,.07)}
+  thead th{background:var(--dark);color:var(--cream);font-weight:700;font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;text-align:left;padding:.85rem 1rem}
+  tbody td{padding:.8rem 1rem;border-bottom:1px solid var(--line);font-size:1.02rem;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  td.co{font-weight:700;color:var(--ink);white-space:nowrap}
+  td.qd{color:var(--muted)}
+  td.dt{font-weight:700;color:var(--brassd);line-height:1.35}
+
+  /* icon cards */
+  .icards{display:grid;grid-template-columns:repeat(4,1fr);gap:1.1rem;margin-top:1.8rem}
+  .icard{background:var(--white);border:1px solid var(--line);border-radius:6px;padding:1.3rem 1.3rem 1.5rem;box-shadow:0 10px 26px rgba(20,53,42,.07)}
+  .icard .circ{width:2.6rem;height:2.6rem;border-radius:50%;background:var(--dark);color:var(--brass);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:700;font-size:1.2rem}
+  .icard h3{font-family:var(--serif);font-size:1.18rem;color:var(--dark);margin:.9rem 0 .5rem;line-height:1.15}
+  .icard p{font-size:.92rem;color:var(--muted);line-height:1.4}
+  .note{margin-top:1.5rem;font-size:.98rem;color:var(--muted)}
+  .note b{color:var(--brassd)}
+
+  /* two-column (ciencia) */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:2.4rem;align-items:start;margin-top:1.4rem}
+  .two .lead{font-family:var(--serif);font-size:clamp(1.3rem,2.3vw,1.9rem);font-weight:700;color:var(--dark);line-height:1.25}
+  .two .stack{display:grid;gap:.9rem}
+
+  /* market bars */
+  .market{display:grid;grid-template-columns:1.3fr 1fr;gap:2.5rem;align-items:end;margin-top:1.6rem}
+  .bars{display:flex;align-items:flex-end;gap:2.5rem;height:300px;padding-bottom:2.2rem;position:relative;border-bottom:1px solid var(--line)}
+  .barwrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+  .barv{font-family:var(--serif);font-weight:700;color:var(--dark);font-size:1.5rem;margin-bottom:.5rem}
+  .bar{width:100%;max-width:150px;background:var(--brass);border-radius:4px 4px 0 0}
+  .barlbl{position:absolute;bottom:0;font-size:.86rem;color:var(--muted);text-align:center;width:45%}
+  .barlbl.l{left:0}.barlbl.r{right:0}
+
+  /* closing dark cards */
+  .opps{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-top:1.6rem}
+  .opp{background:var(--dark2);border:1px solid #2C5446;border-left:5px solid var(--brass);border-radius:4px;padding:1.2rem 1.4rem}
+  .opp h3{font-family:var(--serif);font-size:1.25rem;color:var(--cream);margin-bottom:.4rem}
+  .opp p{font-size:.96rem;color:#C7D3CB;line-height:1.4}
+
+  .sources{font-size:.9rem;line-height:1.7;color:var(--muted);max-width:90ch;margin-top:1.2rem}
+  .sources b{color:var(--dark)}
+
+  /* nav */
+  .nav{position:fixed;bottom:14px;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:center;gap:1.1rem;pointer-events:none}
+  .nav button{pointer-events:auto;background:var(--white);border:1px solid var(--line);color:var(--dark);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1.05rem}
+  .nav .count{font-size:.8rem;color:var(--muted);letter-spacing:.08em}
+  .dots{position:fixed;right:15px;top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;gap:.42rem}
+  .dots i{width:8px;height:8px;border-radius:50%;background:#CFC8B8;cursor:pointer;display:block;transition:.2s}
+  .dots i.on{background:var(--brass);transform:scale(1.4)}
+  .menubtn{position:fixed;top:11px;right:5vw;z-index:50;background:transparent;border:none;color:var(--brass);font-size:1.2rem;cursor:pointer}
+  .menu{position:fixed;inset:0;background:rgba(16,42,32,.97);z-index:60;display:none;padding:8vh 8vw;overflow:auto}
+  .menu.open{display:block}
+  .menu h4{color:var(--brass);letter-spacing:.16em;text-transform:uppercase;font-size:.78rem;margin-bottom:1.3rem}
+  .menu ol{list-style:none;columns:2;column-gap:4vw}
+  .menu li{color:var(--cream);padding:.5rem 0;cursor:pointer;font-size:1rem;border-bottom:1px solid rgba(255,255,255,.1)}
+  .menu li:hover{color:var(--brass)} .menu li b{display:inline-block;width:2.1rem;color:var(--brass)}
+  .menu .close{position:absolute;top:14px;right:5vw;color:var(--cream);font-size:1.4rem;cursor:pointer;background:none;border:none}
+  .hint{position:fixed;bottom:15px;right:16px;z-index:30;font-size:.7rem;color:#9AA095}
+
+  @media(max-width:860px){
+    .cards.c3,.cards.c4,.icards,.two,.market,.opps{grid-template-columns:1fr}
+    .menu ol{columns:1}.dots{display:none}.slide{padding:13vh 7vw 12vh}.bars{height:220px}
+  }
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div class="warp" id="warp"></div>
+<div class="curtain" id="curtain"><div class="cmark"><span class="csq"></span></div></div>
+
+<div class="progress" id="prog"></div>
+<div class="lh" id="lh"><span><b>Universidad Zamorano</b> · Delegación Europa 2026</span><span id="lhnum"></span></div>
+<button class="menubtn" id="menubtn">☰</button>
+<div class="menu" id="menu"><button class="close" id="menuclose">×</button><h4>Contenido</h4><ol id="menulist"></ol></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 TITLE -->
+  <section class="slide dark" data-title="Portada">
+    <div class="wrap">
+      <div class="eyebrow">Universidad Zamorano · Delegación Europa 2026</div>
+      <h1 class="title-xl">Un siglo<br>en una <span style="color:var(--brass)">década</span></h1>
+      <p class="lede">El mundo vive su cambio más rápido en la historia: una nueva era tecnológica —digitalización, datos, automatización, robótica, biotecnología y conectividad— acelerada por la inteligencia artificial.</p>
+    </div>
+  </section>
+
+  <!-- 2 SECTION 01 -->
+  <!-- OPENER -->
+  <section class="slide dark" data-title="El gancho">
+    <div class="wrap">
+      <div class="eyebrow">El punto de partida</div>
+      <h1 style="font-size:clamp(2.1rem,5.2vw,4rem)">No es una sola tecnología.<br>Es una <span style="color:var(--brass)">nueva era</span>.</h1>
+      <p class="lede">Datos, automatización, biotecnología y conectividad están redefiniendo cada industria —del espacio al campo—. Y la inteligencia artificial es lo que las acelera a todas.</p>
+    </div>
+  </section>
+
+  <section class="slide dark" data-title="01 · Dónde estamos">
+    <div class="wrap">
+      <div class="divnum">01</div>
+      <div class="divttl">Dónde estamos hoy</div>
+      <p class="sub">En pocos años, datos, automatización, biotecnología y conectividad —potenciados por la IA— se volvieron la nueva infraestructura de cada industria.</p>
+    </div>
+    <div class="divart"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="34"/><path d="M50 16v68M16 50h68M27 31c12 8 34 8 46 0M27 69c12-8 34-8 46 0"/><circle class="nd" cx="50" cy="16" r="3.2"/><circle class="nd" cx="50" cy="84" r="3.2"/><circle class="nd" cx="16" cy="50" r="3.2"/><circle class="nd" cx="84" cy="50" r="3.2"/></svg></div>
+  </section>
+
+  <!-- 3a NVIDIA + OpenAI -->
+  <!-- LÍNEA DE TIEMPO -->
+  <section class="slide" data-title="Cómo llegamos hasta aquí">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Cómo llegamos hasta aquí</div>
+      <h2>De la computadora a la IA: medio siglo de aceleración</h2>
+      <div class="timeline">
+        <div class="era"><span class="dot"></span><span class="yr">1971–81</span><h3>La computadora personal</h3><p>El microprocesador lleva el cómputo a oficinas y hogares.</p>
+          <div class="efacts"><div class="ef then">1971: primer microprocesador — 2.300 transistores</div><div class="ef now">Hoy: chips con +100.000 millones · +2.000 millones de PC en uso</div></div></div>
+        <div class="era"><span class="dot"></span><span class="yr">1991</span><h3>Internet</h3><p>La World Wide Web conecta al planeta.</p>
+          <div class="efacts"><div class="ef then">1995: 16 millones en línea (0,4% del mundo)</div><div class="ef now">Hoy: 6.000 millones — 3 de cada 4 personas</div></div></div>
+        <div class="era"><span class="dot"></span><span class="yr">2007</span><h3>El smartphone</h3><p>Internet en el bolsillo: datos a toda hora.</p>
+          <div class="efacts"><div class="ef then">2007: nace el iPhone</div><div class="ef now">Hoy: 5.800 millones de usuarios · +7.000 millones de líneas</div></div></div>
+        <div class="era"><span class="dot"></span><span class="yr">2012</span><h3>Las máquinas aprenden</h3><p>El aprendizaje profundo despega (AlexNet).</p>
+          <div class="efacts"><div class="ef then">2012: la IA empieza a aprender de millones de ejemplos</div><div class="ef now">Reconoce imágenes: error 26% → 3% (mejor que una persona)</div></div></div>
+        <div class="era"><span class="dot"></span><span class="yr">2022</span><h3>IA generativa</h3><p>La IA <b>responde, interpreta y crea</b> texto, imágenes y código.</p>
+          <div class="efacts"><div class="ef then">Nov 2022: llega ChatGPT</div><div class="ef now">100 millones de usuarios en 2 meses · hoy 900 millones/semana</div></div></div>
+        <div class="era cur"><span class="dot"></span><span class="curtag">Estamos aquí</span><span class="yr">2024–26</span><h3>IA agéntica</h3><p>El salto: ya no solo responde — <b>usa herramientas, decide y ejecuta tareas sola</b>.</p>
+          <div class="efacts"><div class="ef then">De un chat que contesta… a un agente que actúa</div><div class="ef now">40% de las apps de empresa tendrán agentes en 2026 (desde &lt;5%)</div></div></div>
+      </div>
+      <div class="tlcallout">
+        <div class="big">×90<small>El mundo crea hoy unas <b>90 veces más</b> información al año que en 2010 — cada foto, sensor, compra y mensaje suma, y el ritmo sigue subiendo.</small></div>
+        <div class="big">Cada 6 meses<small>Se <b>duplica</b> la potencia de cálculo que usa la IA: avanza el doble de rápido que los chips durante toda la era de la computación.</small></div>
+        <div class="txt">Tanta información solo vale si se convierte en <b>acción</b>. Por eso la IA dejó de solo responder: hoy <b>decide y actúa con herramientas</b> para volver los datos en resultados.</div>
+      </div>
+      <p class="srcfoot">Fuentes: ITU / DataReportal (internet y móvil, 2025); Statista (PC y transistores); Stanford AI Index (visión por computadora); OpenAI (2022–2026); Gartner (agentes, 2026); IDC / Epoch AI (datos y cómputo).</p>
+    </div>
+  </section>
+
+  <!-- ACELERACIÓN -->
+  <section class="slide" data-title="La velocidad del cambio">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>La velocidad del cambio</div>
+      <h2>Lo que antes tomaba una generación, hoy toma semanas</h2>
+      <div class="cards c4">
+        <div class="card"><div class="num">75 años</div><div class="lbl">Tardó el teléfono en llegar a 100 millones de usuarios</div></div>
+        <div class="card"><div class="num">16 años</div><div class="lbl">Tardó el teléfono móvil en lo mismo</div></div>
+        <div class="card"><div class="num">7 años</div><div class="lbl">Tardó Internet (la web)</div></div>
+        <div class="card"><div class="num b">2 meses</div><div class="lbl">Tardó ChatGPT — la adopción más rápida de la historia</div></div>
+      </div>
+      <p class="tag">En los años 90, que Internet llegara a 100 millones de usuarios en 7 años parecía vertiginoso. ChatGPT lo hizo en 2 meses — y hoy la IA misma duplica su potencia cada 6 meses. La curva dejó de ser rápida: se volvió vertical.</p>
+      <p class="srcfoot">Fuentes: tiempos de adopción a 100 millones de usuarios (Statista; Visual Capitalist); Epoch AI (cómputo de IA).</p>
+    </div>
+  </section>
+
+  <!-- LAS FUERZAS DE LA OLA -->
+  <section class="slide" data-title="Las fuerzas de la nueva era">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Las fuerzas que la impulsan</div>
+      <h2>No es una tecnología: es una convergencia</h2>
+      <div class="icards">
+        <div class="icard"><div class="circ">1</div><h3>Datos</h3><p>El insumo base: todo lo digital genera información que se puede aprovechar.</p></div>
+        <div class="icard"><div class="circ">2</div><h3>Automatización y robótica</h3><p>Máquinas que ejecutan tareas físicas y digitales por sí solas.</p></div>
+        <div class="icard"><div class="circ">3</div><h3>Biotecnología</h3><p>Genómica y mejoramiento que rediseñan la vida y los cultivos.</p></div>
+        <div class="icard"><div class="circ">4</div><h3>Conectividad y cómputo</h3><p>Nube, chips y satélites que conectan y dan potencia a todo.</p></div>
+      </div>
+      <p class="note"><b>Y por encima de todas: la inteligencia artificial</b> — el acelerador que multiplica el valor de cada una.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Pioneros · NVIDIA y OpenAI">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Quién lleva la batuta · 1 / 5</div>
+      <h2>El motor y el modelo</h2>
+      <div class="pcols">
+        <div class="pcard">
+          <div class="pbanner" style="--c1:#76B900;--c2:#3f6b00;--photo:url('assets/co/nvidia.jpg'),url('https://loremflickr.com/1000/320/microchip,processor?lock=11')">
+            <div class="pic"><img class="plogo" data-domain="nvidia.com" alt="NVIDIA"><span class="picon" style="background:#76B900"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10.5 7V4M14 7V4M10.5 20v-3M14 20v-3M7 10.5H4M7 14H4M20 10.5h-3M20 14h-3"/></svg></span></div>
+          </div>
+          <div class="pbody">
+            <div class="pname">NVIDIA</div>
+            <div class="pdomain">Cómputo · Chips de IA</div>
+            <div class="pwhy">Sus chips (GPU) son el motor que entrena casi toda la IA del mundo: sin su cómputo, nada de esto existiría.</div>
+            <div class="ptag">Lo más reciente · jun 2026</div>
+            <div class="pnews">Lanzó su nueva generación de chips <b>“Vera Rubin”</b>, hasta 35× más eficiente para la IA que la generación anterior.</div>
+            <div class="pdata">~US$5 trillones de valor — la empresa más valiosa del mundo</div>
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="pbanner" style="--c1:#10A37F;--c2:#0a5f4a;--photo:url('assets/co/openai.jpg'),url('https://loremflickr.com/1000/320/artificial,intelligence?lock=12')">
+            <div class="pic"><img class="plogo" data-domain="openai.com" alt="OpenAI"><span class="picon" style="background:#10A37F"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2.2l1.7 5.6 5.6 1.7-5.6 1.7L12 16.8l-1.7-5.6L4.7 9.5l5.6-1.7z"/><circle cx="18.5" cy="17.5" r="1.7"/></svg></span></div>
+          </div>
+          <div class="pbody">
+            <div class="pname">OpenAI</div>
+            <div class="pdomain">Modelos · ChatGPT</div>
+            <div class="pwhy">Llevó la IA generativa al público con ChatGPT y fijó el estándar de los asistentes conversacionales.</div>
+            <div class="ptag">Lo más reciente · 2026</div>
+            <div class="pnews">Lanzó <b>GPT-5.5</b>, su modelo más capaz en programación, investigación y manejo autónomo de la computadora.</div>
+            <div class="pdata">900 millones de usuarios por semana</div>
+          </div>
+        </div>
+      </div>
+      <p class="srcfoot">Fuentes: NVIDIA (GTC, jun 2026); OpenAI (2026).</p>
+    </div>
+  </section>
+
+  <!-- 3b Anthropic + Google DeepMind -->
+  <section class="slide" data-title="Pioneros · Anthropic y DeepMind">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Quién lleva la batuta · 2 / 5</div>
+      <h2>La frontera de la inteligencia</h2>
+      <div class="pcols">
+        <div class="pcard">
+          <div class="pbanner" style="--c1:#D97757;--c2:#9a4b30;--photo:url('assets/co/anthropic.jpg'),url('https://loremflickr.com/1000/320/abstract,technology?lock=13')">
+            <div class="pic"><img class="plogo" data-domain="anthropic.com" alt="Anthropic"><span class="picon" style="background:#D97757"><svg viewBox="0 0 24 24" stroke="#fff" stroke-width="2.1" stroke-linecap="round"><path d="M12 3.5v17M5.2 6.2l13.6 11.6M18.8 6.2L5.2 17.8"/></svg></span></div>
+          </div>
+          <div class="pbody">
+            <div class="pname">Anthropic</div>
+            <div class="pdomain">IA segura · Claude</div>
+            <div class="pwhy">Lidera la IA segura y confiable para la empresa; su modelo Claude impulsa los mayores despliegues corporativos.</div>
+            <div class="ptag">Lo más reciente · may 2026</div>
+            <div class="pnews">Levantó <b>US$65 mil millones</b> a una valoración de <b>US$965 mil millones</b>, superando a OpenAI como la startup de IA más valiosa.</div>
+            <div class="pdata">Ingresos US$47 mil millones (run-rate) · IPO en preparación</div>
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="pbanner" style="--c1:#4285F4;--c2:#1b4fa8;--photo:url('assets/co/deepmind.jpg'),url('https://loremflickr.com/1000/320/molecule,laboratory?lock=14')">
+            <div class="pic"><img class="plogo" data-domain="deepmind.google" alt="Google DeepMind"><span class="picon" style="background:#4285F4"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="6" cy="8" r="2.3"/><circle cx="18" cy="8" r="2.3"/><circle cx="12" cy="17" r="2.3"/><path d="M7.8 9.6L10.5 15M16.2 9.6L13.5 15M8.3 8h7.4"/></svg></span></div>
+          </div>
+          <div class="pbody">
+            <div class="pname">Google DeepMind</div>
+            <div class="pdomain">Ciencia · AlphaFold · Gemini</div>
+            <div class="pwhy">Demostró que la IA hace ciencia de frontera: AlphaFold resolvió el plegamiento de las proteínas, un problema de décadas.</div>
+            <div class="ptag">Lo más reciente · 2026</div>
+            <div class="pnews">Presentó <b>Gemini 3.5</b> y agentes autónomos en Google I/O 2026; Gemini ya supera los 900 M de usuarios.</div>
+            <div class="pdata">Premio Nobel de Química 2024 (AlphaFold)</div>
+          </div>
+        </div>
+      </div>
+      <p class="srcfoot">Fuentes: Anthropic (may 2026); Google DeepMind / I/O 2026.</p>
+    </div>
+  </section>
+
+  <!-- 3c Meta + Microsoft -->
+  <section class="slide" data-title="Pioneros · Meta y Microsoft">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Quién lleva la batuta · 3 / 5</div>
+      <h2>La IA, a escala masiva</h2>
+      <div class="pcols">
+        <div class="pcard">
+          <div class="pbanner" style="--c1:#0866FF;--c2:#0540a0;--photo:url('assets/co/meta.jpg'),url('https://loremflickr.com/1000/320/virtual,reality?lock=15')">
+            <div class="pic"><img class="plogo" data-domain="meta.com" alt="Meta"><span class="picon" style="background:#0866FF"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round"><path d="M8 8.5c-2.6 0-3.8 1.8-3.8 3.5S5.4 15.5 8 15.5c2.9 0 4.8-7 8-7 2.6 0 3.8 1.8 3.8 3.5s-1.2 3.5-3.8 3.5c-3.2 0-5.1-7-8-7z"/></svg></span></div>
+          </div>
+          <div class="pbody">
+            <div class="pname">Meta</div>
+            <div class="pdomain">IA abierta · Llama</div>
+            <div class="pwhy">Definió la IA abierta con sus modelos Llama, base sobre la que innovan miles de organizaciones.</div>
+            <div class="ptag">Lo más reciente · 2026</div>
+            <div class="pnews">Creó <b>Meta Superintelligence Labs</b> y lanzó su nuevo modelo <b>Muse Spark</b>, reorganizando la empresa en torno a la IA.</div>
+            <div class="pdata">~1.200 millones de usuarios de Meta AI</div>
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="pbanner" style="--c1:#0078D4;--c2:#044a86;--photo:url('assets/co/microsoft.jpg'),url('https://loremflickr.com/1000/320/computer,software?lock=16')">
+            <div class="pic"><img class="plogo" data-domain="microsoft.com" alt="Microsoft"><span class="picon" style="background:#0078D4"><svg viewBox="0 0 24 24" fill="#fff"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="1"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="1"/><rect x="13" y="13" width="7.5" height="7.5" rx="1"/></svg></span></div>
+          </div>
+          <div class="pbody">
+            <div class="pname">Microsoft</div>
+            <div class="pdomain">IA en el trabajo · Copilot</div>
+            <div class="pwhy">Integró la IA al trabajo diario con Copilot y lidera la adopción de agentes de IA en la empresa.</div>
+            <div class="ptag">Lo más reciente · jun 2026</div>
+            <div class="pnews">En Build 2026 lanzó sus propios modelos <b>“MAI”</b> y convirtió a Windows en un sistema operativo de agentes de IA.</div>
+            <div class="pdata">Usado por el 80 % de las empresas Fortune 500</div>
+          </div>
+        </div>
+      </div>
+      <p class="srcfoot">Fuentes: Meta (2026); Microsoft Build 2026.</p>
+    </div>
+  </section>
+
+  <!-- 3d Amazon + Palantir -->
+  <section class="slide" data-title="Pioneros · Amazon y Palantir">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Quién lleva la batuta · 4 / 5</div>
+      <h2>De la nube a la decisión</h2>
+      <div class="pcols">
+        <div class="pcard">
+          <div class="pbanner" style="--c1:#FF9900;--c2:#b36b00;--photo:url('assets/co/amazon.jpg'),url('https://loremflickr.com/1000/320/warehouse,robot?lock=17')">
+            <div class="pic"><img class="plogo" data-domain="amazon.com" alt="Amazon"><span class="picon" style="background:#FF9900"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M4 7.5l8 4.5 8-4.5M12 12v9"/></svg></span></div>
+          </div>
+          <div class="pbody">
+            <div class="pname">Amazon</div>
+            <div class="pdomain">Nube · Robótica · AWS</div>
+            <div class="pwhy">Reinventó la logística con robótica e impulsa la IA empresarial desde AWS, la mayor nube del mundo.</div>
+            <div class="ptag">Lo más reciente · 2026</div>
+            <div class="pnews">Lanzó sus modelos <b>Nova 2</b> y herramientas (Nova Act) para crear agentes de IA que operan software por sí solos.</div>
+            <div class="pdata">+1 millón de robots en sus centros logísticos</div>
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="pbanner" style="--c1:#2b3240;--c2:#11151c;--photo:url('assets/co/palantir.jpg'),url('https://loremflickr.com/1000/320/data,network?lock=18')">
+            <div class="pic"><img class="plogo" data-domain="palantir.com" alt="Palantir"><span class="picon" style="background:#1B2430"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="5" cy="6" r="2.1"/><circle cx="19" cy="6" r="2.1"/><circle cx="12" cy="18" r="2.1"/><g stroke="#fff" stroke-width="1.6"><path d="M6.6 7L11 16M17.4 7L13 16M7 6h10"/></g></svg></span></div>
+          </div>
+          <div class="pbody">
+            <div class="pname">Palantir</div>
+            <div class="pdomain">Datos → Decisión · AIP</div>
+            <div class="pwhy">Convierte datos dispersos en decisiones operativas; su plataforma (AIP) lleva la IA a la acción.</div>
+            <div class="ptag">Lo más reciente · 2026</div>
+            <div class="pnews">Ingresos <b>+85 % interanual</b>; ganó un contrato de hasta <b>US$300 M con el USDA</b> para programas agrícolas y trazabilidad.</div>
+            <div class="pdata">Negocio comercial en EE. UU. +133 % interanual</div>
+          </div>
+        </div>
+      </div>
+      <p class="srcfoot">Fuentes: Amazon (2026); Palantir (Q1 2026).</p>
+    </div>
+  </section>
+
+  <!-- 3e Tesla + SpaceX -->
+  <section class="slide" data-title="Pioneros · Tesla y SpaceX">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Quién lleva la batuta · 5 / 5</div>
+      <h2>Autonomía: del camino al espacio</h2>
+      <div class="pcols">
+        <div class="pcard">
+          <div class="pbanner" style="--c1:#E31937;--c2:#8f0f22;--photo:url('assets/co/tesla.jpg'),url('https://loremflickr.com/1000/320/electric,car?lock=19')">
+            <div class="pic"><img class="plogo" data-domain="tesla.com" alt="Tesla"><span class="picon" style="background:#E31937"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M3 13l2-5h14l2 5v4h-2.2M3 13v4h2.2M3 13h18"/><circle cx="7.6" cy="17" r="1.7"/><circle cx="16.4" cy="17" r="1.7"/></svg></span></div>
+          </div>
+          <div class="pbody">
+            <div class="pname">Tesla</div>
+            <div class="pdomain">Autonomía · Robótica</div>
+            <div class="pwhy">Llevó el auto eléctrico y la conducción autónoma a escala, y extiende su IA a la robótica humanoide (Optimus).</div>
+            <div class="ptag">Lo más reciente · jun 2026</div>
+            <div class="pnews">Expandió su <b>robotaxi sin conductor</b> de Austin a Dallas y nuevos mercados, y prepara el arranque de producción del robot <b>Optimus</b>.</div>
+            <div class="pdata">1 accidente cada ~10,8 M de km con FSD, vs. ~1,1 M con una persona (≈10× más seguro)</div>
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="pbanner" style="--c1:#2a2a33;--c2:#111114;--photo:url('assets/co/spacex.jpg'),url('https://loremflickr.com/1000/320/rocket,space?lock=20')">
+            <div class="pic"><img class="plogo" data-domain="spacex.com" alt="SpaceX"><span class="picon" style="background:#15151A"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5c3 2 4.6 5 4.6 8.6L12 16l-4.6-4.9C7.4 7.5 9 4.5 12 2.5z"/><circle cx="12" cy="9" r="1.5" fill="#fff" stroke="none"/><path d="M9 16.5l-2 4M15 16.5l2 4M12 16v4.5"/></svg></span></div>
+          </div>
+          <div class="pbody">
+            <div class="pname">SpaceX</div>
+            <div class="pdomain">Espacio · Starlink</div>
+            <div class="pwhy">Hizo reutilizables los cohetes —algo inédito— y conectó al mundo con Starlink, la mayor constelación de satélites.</div>
+            <div class="ptag">Lo más reciente · jun 2026</div>
+            <div class="pnews">Salió a bolsa en Nasdaq (la mayor IPO de la historia) y voló su <b>Starship V3</b>, rumbo a Marte.</div>
+            <div class="pdata">IPO 2026: ~US$1,77 trillones de valoración · 10.400 satélites Starlink = ~2 de cada 3 satélites activos del mundo</div>
+          </div>
+        </div>
+      </div>
+      <p class="note"><b>Y apuestan al cómputo:</b> Tesla, SpaceX y xAI construyen <b>Terafab</b> en Texas — la mayor fábrica de chips integrada del mundo (hasta US$119 mil millones) — para controlar el insumo más estratégico de la IA.</p>
+      <p class="srcfoot">Fuentes: Tesla (jun 2026); SpaceX (jun 2026); Terafab (CNBC, 2026).</p>
+    </div>
+  </section>
+
+  <!-- 6 EFICIENCIA -->
+  <section class="slide" data-title="Eficiencia">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Eficiencia</div>
+      <h2>Hacer más, mejor y con menos</h2>
+      <div class="cards c3">
+        <div class="card"><div class="num b"><span data-count="55" data-prefix="+" data-suffix=" %">+55 %</span></div><div class="lbl">Más rápido en programación con asistentes de IA (GitHub Copilot)</div></div>
+        <div class="card"><div class="num"><span data-count="40" data-prefix="+" data-suffix=" %">+40 %</span></div><div class="lbl">Mejor calidad del trabajo en tareas de consultoría (estudio BCG)</div></div>
+        <div class="card"><div class="num"><span data-count="60" data-prefix="−" data-suffix=" %">−60 %</span></div><div class="lbl">Menos tiempo de respuesta agronómica con IA (Bayer, E.L.Y.)</div></div>
+      </div>
+      <p class="tag">La IA no solo acelera: eleva la calidad y libera tiempo para lo que exige criterio.</p>
+      <p class="srcfoot">Fuentes: MIT / GitHub Copilot (2024); BCG (2023); Bayer (2025).</p>
+    </div>
+  </section>
+
+  <!-- 7 IA Y CIENCIA -->
+  <section class="slide" data-title="La IA y la ciencia">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>La IA y la ciencia</div>
+      <h2>Cuando la ciencia y la IA se encuentran</h2>
+      <div class="two">
+        <div class="lead">AlphaFold resolvió en minutos un problema que tomaba años: la estructura de las proteínas.</div>
+        <div class="stack">
+          <div class="card"><div class="num"><span data-count="200" data-suffix=" millones">200 millones</span></div><div class="lbl">Estructuras de proteínas predichas con IA</div></div>
+          <div class="card"><div class="num">2 millones+</div><div class="lbl">Investigadores en 190 países la utilizan</div></div>
+          <div class="card"><div class="num b">Nobel 2024</div><div class="lbl">Química — Google DeepMind</div></div>
+        </div>
+      </div>
+      <p class="srcfoot">Fuente: NobelPrize.org (2024).</p>
+    </div>
+  </section>
+
+  <!-- 8 SECTION 02 -->
+  <section class="slide dark" data-title="02 · Hacia dónde vamos">
+    <div class="wrap">
+      <div class="divnum">02</div>
+      <div class="divttl">Hacia dónde vamos</div>
+      <p class="sub">Lo que viene: sistemas que no solo informan — deciden y actúan.</p>
+    </div>
+    <div class="divart"><svg viewBox="0 0 100 100"><path d="M12 82c20 2 26-52 42-52 13 0 15 26 33 10"/><path d="M75 40l13-2-5 13"/><circle class="nd" cx="12" cy="82" r="3.2"/><circle class="nd" cx="54" cy="30" r="3.2"/></svg></div>
+  </section>
+
+  <!-- 9 FUTURO -->
+  <section class="slide" data-title="El futuro · IA agéntica">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>El futuro</div>
+      <h2>La IA agéntica: del asistente al agente</h2>
+      <div class="cards c3">
+        <div class="card"><div class="num b"><span data-count="40" data-suffix=" %">40 %</span></div><div class="lbl">De las apps empresariales tendrán agentes de IA para fin de 2026 (desde &lt;5 %)</div></div>
+        <div class="card"><div class="num">US$206 mil millones</div><div class="lbl">Gasto mundial en software de agentes de IA en 2026 (Gartner)</div></div>
+        <div class="card"><div class="num"><span data-count="60" data-suffix=" %">60 %</span></div><div class="lbl">De las organizaciones desplegará agentes en los próximos 2 años</div></div>
+      </div>
+      <p class="tag">Lo que viene no es una herramienta más: es software que razona, decide y ejecuta.</p>
+      <p class="srcfoot">Fuente: Gartner (2025–2026).</p>
+    </div>
+  </section>
+
+  <!-- 10 EL AGRO -->
+  <!-- PROYECCIONES -->
+  <section class="slide" data-title="El impacto en los próximos años">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Proyecciones · con evidencia</div>
+      <h2>El impacto en los próximos años</h2>
+      <div class="cards c3">
+        <div class="card"><div class="num b">+US$15,7 trillones</div><div class="lbl">Lo que la IA sumará al PIB global para 2030 (+14 % del PIB).</div><span class="csrc">PwC</span></div>
+        <div class="card"><div class="num">+US$7 trillones</div><div class="lbl">Aumento del PIB global en una década; +1,5 % de productividad al año.</div><span class="csrc">Goldman Sachs</span></div>
+        <div class="card"><div class="num b">+78 millones</div><div class="lbl">Empleos netos nuevos para 2030 (170 millones creados, 92 millones desplazados).</div><span class="csrc">Foro Económico Mundial</span></div>
+        <div class="card"><div class="num">US$376 mil millones</div><div class="lbl">Gasto mundial en agentes de IA en 2027 (desde US$206 mil millones en 2026).</div><span class="csrc">Gartner</span></div>
+        <div class="card"><div class="num">US$24 mil millones</div><div class="lbl">Mercado de agricultura de precisión en 2030 (+13 % anual).</div><span class="csrc">Grand View · MarketsandMarkets</span></div>
+        <div class="card"><div class="num b">US$4,4 trillones al año</div><div class="lbl">Valor anual potencial de la inteligencia artificial generativa.</div><span class="csrc">McKinsey</span></div>
+      </div>
+      <p class="srcfoot">Proyecciones publicadas por PwC, Goldman Sachs, Foro Económico Mundial, Gartner, McKinsey y Grand View Research (2024–2026).</p>
+    </div>
+  </section>
+
+  <!-- EUROPA · MODELO HOLANDÉS -->
+  <section class="slide" data-title="Por qué Europa">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Por qué Europa</div>
+      <h2>El modelo holandés: tecnología que alimenta al mundo</h2>
+      <div class="cards c4">
+        <div class="card"><div class="num b">€129 mil millones</div><div class="lbl">Exportación agrícola de Países Bajos en 2024 — 2.º del mundo, solo detrás de EE. UU.</div></div>
+        <div class="card"><div class="num">80 kg/m²</div><div class="lbl">Tomate en sus mejores invernaderos — varias veces el rendimiento a campo abierto</div></div>
+        <div class="card"><div class="num b">~20×</div><div class="lbl">Menos tierra: igualar ese rendimiento a campo abierto exige ~20 veces más superficie</div></div>
+        <div class="card"><div class="num">~95 %</div><div class="lbl">Menos agua por kilo que el promedio mundial; casi sin pesticidas químicos (control biológico)</div></div>
+      </div>
+      <p class="tag">Un país más pequeño que Honduras es el 2.º exportador agrícola del planeta — no por tierra, sino por tecnología, datos e investigación. Es la prueba viva de esta nueva era… y la razón de este viaje.</p>
+      <p class="srcfoot">Fuentes: CBS Países Bajos (exportación 2024); National Geographic; Agritecture (invernaderos).</p>
+    </div>
+  </section>
+
+  <!-- EUROPA · MAPA A LA AGENDA -->
+  <section class="slide" data-title="Las fuerzas, en su agenda">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>De lo global a su agenda</div>
+      <h2>Las mismas fuerzas — las verán con sus propios ojos</h2>
+      <table>
+        <thead><tr><th style="width:26%">Fuerza</th><th style="width:42%">Qué es</th><th style="width:32%">Dónde la verán</th></tr></thead>
+        <tbody>
+          <tr><td class="co">Robótica y automatización</td><td class="qd">Máquinas que siembran, cuidan, cosechan y ordeñan solas</td><td class="dt">CLAAS · LEMKEN · GEA · Lely</td></tr>
+          <tr><td class="co">Datos e IA</td><td class="qd">Sensores y software que deciden clima, riego y nutrición</td><td class="dt">Priva · World Horti Center</td></tr>
+          <tr><td class="co">Biotecnología</td><td class="qd">Genética y semillas para más rendimiento y resistencia</td><td class="dt">BASF/Nunhems · Rijk Zwaan</td></tr>
+          <tr><td class="co">Energía + clima</td><td class="qd">Agrivoltaica: alimento y energía en el mismo suelo</td><td class="dt">RWE</td></tr>
+          <tr><td class="co">Investigación</td><td class="qd">La ciencia que conecta todo lo anterior</td><td class="dt">Bonn · Jülich · Brightlands · Wageningen</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Su itinerario no es una colección de empresas: es <b>esta nueva era</b>, aterrizada en el agro europeo.</p>
+    </div>
+  </section>
+
+  <!-- IA EN LA AGRICULTURA -->
+  <section class="slide" data-title="IA en la agricultura">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>La agricultura</div>
+      <h2>La IA ya transforma el campo: cuatro frentes</h2>
+      <div class="icards">
+        <div class="icard"><div class="circ">1</div><h3>Agricultura de precisión</h3><p>Sensores, drones y satélites optimizan agua, semilla y fertilizante metro a metro.</p></div>
+        <div class="icard"><div class="circ">2</div><h3>Maquinaria autónoma</h3><p>Tractores y robots que siembran, cuidan y cosechan por sí solos.</p></div>
+        <div class="icard"><div class="circ">3</div><h3>Biotecnología y mejoramiento</h3><p>La IA acelera el desarrollo de cultivos — como AlphaFold revolucionó la biología.</p></div>
+        <div class="icard"><div class="circ">4</div><h3>Predicción y trazabilidad</h3><p>Modelos de clima y plagas, y datos de extremo a extremo en la cadena de valor.</p></div>
+      </div>
+      <p class="note">La misma tecnología que vimos en los pioneros, aplicada al alimento del mundo.</p>
+    </div>
+  </section>
+
+  <!-- AGTECH · CIFRAS -->
+  <section class="slide" data-title="Agtech en cifras">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>La tecnología, en números</div>
+      <h2>Qué cambia en el campo — con datos</h2>
+      <div class="cards c3">
+        <div class="card"><div class="num b">−15 a −30 %</div><div class="lbl">Menos fertilizante, agua y pesticida con agricultura de precisión (hasta −60 % con dosis variable)</div><span class="csrc">AEM · Farmonaut</span></div>
+        <div class="card"><div class="num">+9 a +13 %</div><div class="lbl">Más rendimiento con guiado, mapeo y dosis variable; +22 % de retorno de la inversión</div><span class="csrc">AEM</span></div>
+        <div class="card"><div class="num b">~90 %</div><div class="lbl">Precisión de la app Nuru al detectar enfermedades por foto — el doble que un asesor humano, y sin internet</div><span class="csrc">PlantVillage</span></div>
+        <div class="card"><div class="num">&gt;70 %</div><div class="lbl">De los cultivos editados genéticamente en desarrollo usan CRISPR; la UE flexibilizó sus reglas en 2024</div><span class="csrc">JRC · UE</span></div>
+        <div class="card"><div class="num b">US$9 → 23 mil millones</div><div class="lbl">Mercado mundial de control biológico de plagas, 2024 → 2030 (~16 % al año)</div><span class="csrc">Market.us</span></div>
+        <div class="card"><div class="num">100 % autónomo</div><div class="lbl">Tractores que siembran y cosechan solos (John Deere, CES 2025)</div><span class="csrc">John Deere</span></div>
+      </div>
+      <p class="srcfoot">Fuentes: AEM y Farmonaut (precisión); PlantVillage / Nuru (Frontiers, 2020); Comisión Europea / JRC (edición genética); Market.us (biocontrol); John Deere (2025).</p>
+    </div>
+  </section>
+
+  <section class="slide" data-title="Innovación en el agro">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>La agricultura</div>
+      <h2>Innovación en el agro: ejemplos que abren camino</h2>
+      <table>
+        <thead><tr><th style="width:20%">Compañía</th><th style="width:50%">Qué construye</th><th style="width:30%">Dato</th></tr></thead>
+        <tbody>
+          <tr><td class="co">John Deere</td><td class="qd">Tractores autónomos y “See &amp; Spray” con IA</td><td class="dt">100 % autónomo</td></tr>
+          <tr><td class="co">Bayer</td><td class="qd">“E.L.Y.”, IA generativa para la agronomía</td><td class="dt">−60 % tiempo de respuesta</td></tr>
+          <tr><td class="co">Syngenta</td><td class="qd">Cropwise AI, asesor agronómico generativo</td><td class="dt">+5 % rendimiento</td></tr>
+          <tr><td class="co">Lely</td><td class="qd">Robots de ordeño + plataforma de datos Horizon</td><td class="dt">Datos → decisión</td></tr>
+          <tr><td class="co">SAP</td><td class="qd">ERP con IA agéntica integrada (Joule)</td><td class="dt">IA en el ERP</td></tr>
+        </tbody>
+      </table>
+      <p class="srcfoot">Fuentes: John Deere (CES 2025), Bayer, Syngenta, Lely, SAP (2024–2025).</p>
+    </div>
+  </section>
+
+
+  <!-- REALIDAD TROPICAL + RIESGOS -->
+  <section class="slide" data-title="La realidad tropical">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Oportunidad y brecha</div>
+      <h2>Lo que esto significa en el trópico</h2>
+      <div class="cards c3">
+        <div class="card"><div class="num b">~1/3</div><div class="lbl">Del alimento mundial lo producen pequeños agricultores — el corazón del agro centroamericano</div><span class="csrc">FAO · Our World in Data</span></div>
+        <div class="card"><div class="num">77 millones</div><div class="lbl">De habitantes rurales en América Latina sin internet de calidad — sin conexión no hay datos</div><span class="csrc">BID</span></div>
+        <div class="card"><div class="num b">10 → 34 %</div><div class="lbl">Conectividad en fincas de Brasil (2017 → hoy): la brecha se cierra, pero falta camino</div><span class="csrc">AgNavigator</span></div>
+      </div>
+      <p class="note"><b>El salto es posible sin esperar a tenerlo todo:</b> apps como Nuru ya diagnostican enfermedades por foto sin internet. Pero hay que gestionar el costo, la calidad de los datos y la dependencia tecnológica — la ventaja no la da la herramienta, sino cómo se adopta.</p>
+      <p class="srcfoot">Fuentes: FAO / Our World in Data; BID; GSMA; AgNavigator (2025).</p>
+    </div>
+  </section>
+
+  <!-- 12 SECTION 03 -->
+  <section class="slide dark" data-title="03 · Mantenerse a la vanguardia">
+    <div class="wrap">
+      <div class="divnum">03</div>
+      <div class="divttl">Cómo mantenerse<br>a la vanguardia</div>
+      <p class="sub">La tecnología está al alcance de todos; la ventaja está en cómo se usa.</p>
+    </div>
+    <div class="divart"><svg viewBox="0 0 100 100"><path d="M8 84h84M28 84L52 32l13 24 9-16 18 44"/><path d="M52 32V12l17 6-17 6"/></svg></div>
+  </section>
+
+  <!-- 13 LO QUE DISTINGUE -->
+  <section class="slide" data-title="Lo que distingue a quienes lideran">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>No basta con adoptar</div>
+      <h2>Lo que distingue a quienes lideran</h2>
+      <div class="icards">
+        <div class="icard"><div class="circ">1</div><h3>Datos confiables</h3><p>Datos propios, completos y ordenados: el combustible de la IA.</p></div>
+        <div class="icard"><div class="circ">2</div><h3>Las preguntas correctas</h3><p>Pensamiento científico: la ciencia define qué resolver; la IA lo acelera.</p></div>
+        <div class="icard"><div class="circ">3</div><h3>Alfabetización de datos y de IA</h3><p>Leer y decidir con datos en cada nivel — usar la IA y saber cuestionarla.</p></div>
+        <div class="icard"><div class="circ">4</div><h3>Talento y cultura</h3><p>Equipos mixtos, aprendizaje continuo y cultura de experimentación.</p></div>
+      </div>
+      <p class="note">El reto no es la tecnología, es el conocimiento: la demanda de talento en IA supera la oferta <b>3 : 1</b> (IDC), y <b>95 %</b> de los pilotos fallan por implementación, no por el modelo (MIT, 2025).</p>
+    </div>
+  </section>
+
+  <!-- ARQUITECTURA IA · super slide -->
+  <section class="slide" data-title="La arquitectura de la IA">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>La base estructural</div>
+      <h2 style="margin-bottom:.2rem">Qué hace falta para que la IA funcione</h2>
+      <p class="archlede">La IA es la punta visible de un sistema. Para que funcione, debajo debe existir toda esta arquitectura —y las personas son su base. Cada capa cumple un papel; se lee de abajo hacia arriba.</p>
+      <div class="arch2">
+        <div class="arail">▲ de los datos a la decisión</div>
+        <div class="acol">
+          <div class="alyr lapp">
+            <div class="ahead"><b>Aplicaciones</b><small>Donde la IA se vuelve útil: responde, decide y actúa</small></div>
+            <div class="achips"><span>Copilotos</span><span>Agentes autónomos</span><span>Tableros</span><span>Automatización de procesos</span></div>
+          </div>
+          <div class="alyr lplat">
+            <div class="ahead"><b>Plataforma de IA</b><small>El motor: entrena los modelos y los conecta con los datos</small></div>
+            <div class="achips"><span>Modelos / LLM</span><span>RAG</span><span>Agentes y herramientas</span><span>APIs</span><span>Monitoreo</span></div>
+          </div>
+          <div class="alyr ldata">
+            <div class="ahead"><b>Datos</b><small>La materia prima: recolectar, ordenar y limpiar datos confiables</small></div>
+            <div class="achips"><span>Fuentes: ERP · sensores · IoT</span><span>Almacén de datos</span><span>Bases de datos</span><span>Calidad y limpieza</span></div>
+          </div>
+          <div class="alyr linfra">
+            <div class="ahead"><b>Infraestructura</b><small>Los cimientos técnicos: dónde vive y corre todo, de forma segura</small></div>
+            <div class="achips"><span>Cómputo (GPU)</span><span>Nube / propio</span><span>Entornos: prueba y producción</span></div>
+          </div>
+          <div class="alyr lbase">
+            <div class="ahead"><b>Personas y cultura</b><small>La base de todo: quiénes lo construyen y deciden</small></div>
+            <div class="achips"><span>Liderazgo</span><span>Talento de datos</span><span>Expertos del campo</span><span>Capacitación</span><span>TI · Operaciones · I+D · Negocio</span></div>
+          </div>
+        </div>
+        <div class="apillar">
+          <b>Gobernanza, seguridad y calidad</b>
+          <small>Las reglas que protegen todo el sistema</small>
+          <span class="pchip">Quién accede (IAM)</span>
+          <span class="pchip">Privacidad y cumplimiento</span>
+          <span class="pchip">Calidad y trazabilidad</span>
+          <span class="pchip">Ética y costo</span>
+        </div>
+      </div>
+      <p class="note" style="margin-top:.7rem">Comprar un modelo es fácil; <b>construir y sostener esta base</b> —datos, gobernanza y personas— es el verdadero trabajo, y donde de verdad se decide el éxito.</p>
+    </div>
+  </section>
+
+  <!-- RELEVANCIA ZAMORANO -->
+  <section class="slide" data-title="Qué significa para Zamorano">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>De vuelta a casa</div>
+      <h2>Qué significa para Zamorano</h2>
+      <div class="icards">
+        <div class="icard"><div class="circ">1</div><h3>Agronomía</h3><p>Precisión, robótica y sensores en el campo y en el aula.</p></div>
+        <div class="icard"><div class="circ">2</div><h3>Agroindustria</h3><p>Trazabilidad y datos de la cosecha al producto: café, cacao, fruta.</p></div>
+        <div class="icard"><div class="circ">3</div><h3>Agronegocios</h3><p>Modelos cooperativos y basados en datos, como en los Países Bajos.</p></div>
+        <div class="icard"><div class="circ">4</div><h3>Agroambiental</h3><p>Control biológico y manejo sostenible de 3.000+ hectáreas.</p></div>
+      </div>
+      <p class="note"><b>El hilo que conecta el viaje:</b> sus maestrías en Agricultura de Precisión y Agricultura Tropical Sostenible, y el <b>AgroHub</b> —que ya dinamiza startups en Honduras, El Salvador y Guatemala— encuentran su espejo en <b>Wageningen</b> (la universidad agrícola n.º 1 del mundo) y en el ecosistema <b>Foodvalley / StartLife</b>. Un vínculo formal sería el resultado más valioso de esta delegación.</p>
+      <p class="srcfoot">Fuentes: QS World University Rankings — Agriculture &amp; Forestry 2025; perfil institucional Zamorano; brief de socios europeos.</p>
+    </div>
+  </section>
+
+  <!-- 15 POTENCIAL -->
+  <!-- CONCLUSIONES -->
+  <section class="slide dark" data-title="Conclusiones">
+    <div class="wrap">
+      <div class="eyebrow">Conclusiones</div>
+      <h1 style="font-size:clamp(1.9rem,4.2vw,3.1rem)">Cuatro ideas para llevarse</h1>
+      <div class="opps">
+        <div class="opp"><h3>1 · No es una tecnología, es una nueva era</h3><p>Datos, automatización, biotecnología y conectividad convergen — y la IA las acelera.</p></div>
+        <div class="opp"><h3>2 · El valor es real y medible</h3><p>Más eficiencia, más productividad y mejores decisiones, hoy.</p></div>
+        <div class="opp"><h3>3 · No es futuro, es presente</h3><p>Ya define quién lidera cada industria; lo que viene son sistemas que deciden y actúan.</p></div>
+        <div class="opp"><h3>4 · El agro ya está dentro</h3><p>Del satélite al cultivo, la agricultura se transforma con datos, ciencia y tecnología.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARCO DE PREGUNTAS -->
+  <section class="slide" data-title="Para reflexionar">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Para reflexionar</div>
+      <h2>Preguntas que vale la pena hacerse</h2>
+      <div class="qlist">
+        <div class="qrow"><span class="qn">1</span><p>¿Qué tareas podrían volverse mucho más eficientes con inteligencia artificial?</p></div>
+        <div class="qrow"><span class="qn">2</span><p>¿Qué decisiones mejorarían con mejores datos?</p></div>
+        <div class="qrow"><span class="qn">3</span><p>¿Qué competencias serán indispensables dentro de cinco años?</p></div>
+        <div class="qrow"><span class="qn">4</span><p>¿Dónde tiene sentido liderar, y dónde adoptar lo que ya está probado?</p></div>
+        <div class="qrow"><span class="qn">5</span><p>¿Qué alianzas aceleran el aprendizaje y la innovación?</p></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- CIERRE · frase -->
+  <section class="slide dark" data-title="Cierre">
+    <div class="wrap">
+      <div class="qmark">“</div>
+      <div class="qbig">Un siglo de cambio en una <span class="accent">década</span> — y apenas comienza.</div>
+      <div class="qsub">Digitalización, datos, automatización, robótica, biotecnología y conectividad convergen —acelerados por la inteligencia artificial— para redefinir cada industria, incluida la agricultura. Comprender esta transformación hoy es el primer paso para liderarla mañana.</div>
+    </div>
+  </section>
+
+  <!-- 16 FUENTES -->
+  <section class="slide" data-title="Fuentes I">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Fuentes · 1 de 2</div>
+      <h2>Referencias — tecnología e impacto</h2>
+      <div class="sources">
+        <p><b>Tecnología (pioneros de frontera):</b> NVIDIA (GTC, FY2026) · OpenAI / ChatGPT (2026) · Anthropic (2026) · Google DeepMind, AlphaFold — Premio Nobel de Química 2024 (NobelPrize.org) · Meta (2026) · Microsoft (Build 2026) · Amazon (2026) · Palantir (Q1 2026) · Tesla y SpaceX (2026) · Terafab (CNBC, 2026).</p>
+        <p style="margin-top:.8rem"><b>Impacto, eficiencia y futuro:</b> McKinsey (US$2.6–4.4 trillones/año) · GitHub Copilot / MIT (2024) · BCG (2023) · Gartner, IA agéntica (2025–2026).</p>
+        <p style="margin-top:.8rem"><b>Proyecciones a 2030:</b> PwC (US$15,7 trillones al PIB global) · Goldman Sachs (+US$7 trillones; +1,5 % de productividad) · Foro Económico Mundial, Future of Jobs 2025 (170 M / 92 M empleos).</p>
+        <p style="margin-top:.8rem"><b>Mercado y competencias:</b> Grand View Research; MarketsandMarkets (mercado agrícola, 2025) · IDC; World Economic Forum, Future of Jobs 2025.</p>
+        <p style="margin-top:.8rem"><b>Línea de tiempo y velocidad de adopción:</b> ITU / DataReportal (internet y móvil, 2025) · Statista (PC, transistores y tiempos de adopción) · Visual Capitalist (tiempo a 100 M de usuarios) · Stanford AI Index (visión por computadora) · Epoch AI (cómputo de IA).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUENTES II -->
+  <section class="slide" data-title="Fuentes II">
+    <div class="wrap">
+      <div class="kicker"><span class="sq"></span>Fuentes · 2 de 2</div>
+      <h2>Referencias — agro, Europa y contexto</h2>
+      <div class="sources">
+        <p><b>Europa y modelo holandés:</b> CBS Países Bajos — exportación agrícola 2024 (€128,9 mil millones, 2.º del mundo) · National Geographic, “How the Netherlands Feeds the World” · Agritecture (invernaderos) · QS World University Rankings — Agriculture &amp; Forestry 2025 (Wageningen n.º 1).</p>
+        <p style="margin-top:.8rem"><b>Agtech con datos:</b> AEM y Farmonaut (agricultura de precisión) · PlantVillage / Nuru (Frontiers in Plant Science, 2020) · Comisión Europea / JRC (edición genética, NGT 2024) · Market.us (control biológico) · pioneros del agro: John Deere (CES 2025), Bayer, Syngenta, Lely y SAP (2024–2025).</p>
+        <p style="margin-top:.8rem"><b>Realidad tropical y brecha digital:</b> FAO y Our World in Data (pequeños productores) · BID (77 M de habitantes rurales sin internet de calidad) · GSMA (agricultura digital en LATAM) · AgNavigator (conectividad agrícola, 2025).</p>
+        <p style="margin-top:.8rem"><b>Contexto institucional:</b> perfil de la Universidad Zamorano (ingenierías, maestrías, AgroHub / BID Lab) y brief de socios europeos de la delegación 2026.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<div class="nav"><button id="prev">‹</button><span class="count" id="count"></span><button id="next">›</button></div>
+<div class="hint">← → · M menú · F pantalla completa</div>
+
+<script>
+  const slides=Array.from(document.querySelectorAll('.slide'));
+  const dotsWrap=document.getElementById('dots'),prog=document.getElementById('prog');
+  const count=document.getElementById('count'),lh=document.getElementById('lh'),lhnum=document.getElementById('lhnum');
+  const menu=document.getElementById('menu'),menulist=document.getElementById('menulist');
+  let idx=0; const total=slides.length; const pad=n=>String(n).padStart(2,'0');
+  slides.forEach((s,k)=>{
+    const d=document.createElement('i');d.onclick=()=>go(k);dotsWrap.appendChild(d);
+    const li=document.createElement('li');li.innerHTML='<b>'+pad(k+1)+'</b> '+(s.dataset.title||('Slide '+(k+1)));
+    li.onclick=()=>{go(k);closeMenu();};menulist.appendChild(li);
+  });
+  const dots=Array.from(dotsWrap.children);
+  function animateCounters(el){
+    el.querySelectorAll('[data-count]').forEach(n=>{
+      const target=parseFloat(n.getAttribute('data-count'))||0,
+            pre=n.getAttribute('data-prefix')||'', suf=n.getAttribute('data-suffix')||'',
+            dec=parseInt(n.getAttribute('data-dec')||'0',10), dur=1100, t0=performance.now();
+      (function loop(now){
+        const p=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-p,3), val=target*e;
+        n.textContent=pre+(dec?val.toFixed(dec):Math.round(val))+suf;
+        if(p<1)requestAnimationFrame(loop);
+      })(performance.now());
+    });
+  }
+  let first=true;
+  const TC=['enter-next','enter-prev','leave-next','leave-prev','leaving'];
+  const strip=s=>s.classList.remove(...TC);
+  function setState(n){
+    idx=Math.max(0,Math.min(total-1,n));
+    dots.forEach((d,k)=>d.classList.toggle('on',k===idx));
+    prog.style.width=((idx+1)/total*100)+'%';
+    const label=pad(idx+1)+' / '+pad(total); count.textContent=label; lhnum.textContent=label;
+    const dark=slides[idx].classList.contains('dark');
+    lh.style.color=dark?'#9FB3A6':'#6E7A72';
+    history.replaceState(null,'','#'+(idx+1));
+    animateCounters(slides[idx]);
+  }
+  function go(n){
+    n=Math.max(0,Math.min(total-1,n));
+    if(first){first=false;slides[n].classList.add('active');setState(n);return;}
+    if(n===idx)return;
+    const old=idx;
+    const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+    const dir=reduce?null:(n>old?'next':'prev');
+    const enter=slides[n], leaver=slides[old];
+    strip(enter);
+    enter.classList.add('active');
+    if(dir)enter.classList.add('enter-'+dir);
+    setState(n);
+    leaver.classList.remove('active');
+    if(dir){
+      const w=document.getElementById('warp');
+      if(w){w.classList.remove('run');void w.offsetWidth;w.classList.add('run');}
+      leaver.classList.add('leaving','leave-'+dir);
+      const done=()=>{strip(leaver);leaver.removeEventListener('animationend',done);};
+      leaver.addEventListener('animationend',done);
+      setTimeout(done,950);
+      setTimeout(()=>enter.classList.remove('enter-'+dir),950);
+    }
+  }
+  const next=()=>go(idx+1),prev=()=>go(idx-1),closeMenu=()=>menu.classList.remove('open');
+  document.getElementById('next').onclick=next;document.getElementById('prev').onclick=prev;
+  document.getElementById('menubtn').onclick=()=>menu.classList.add('open');
+  document.getElementById('menuclose').onclick=closeMenu;
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp')prev();
+    else if(e.key==='Home')go(0);else if(e.key==='End')go(total-1);
+    else if(e.key.toLowerCase()==='m')menu.classList.toggle('open');
+    else if(e.key==='Escape')closeMenu();
+    else if(e.key.toLowerCase()==='f'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}
+  });
+  let x0=null;
+  document.addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
+  document.addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)dx<0?next():prev();x0=null;});
+  go((parseInt(location.hash.replace('#',''))||1)-1);
+
+  // brand icon shows by default (works offline / in-app); swap to the real logo only if it loads
+  document.querySelectorAll('.plogo').forEach(img=>{
+    const d=img.getAttribute('data-domain');
+    const srcs=['https://icons.duckduckgo.com/ip3/'+d+'.ico','https://www.google.com/s2/favicons?domain='+d+'&sz=128','https://unavatar.io/'+d];
+    let i=0;
+    const ic=img.parentElement.querySelector('.picon');
+    img.addEventListener('load',()=>{
+      if(img.naturalWidth>1){img.style.display='block';if(ic)ic.style.display='none';}
+    });
+    img.addEventListener('error',()=>{
+      i++;
+      if(i<srcs.length){img.src=srcs[i];}   // si todas fallan, queda el ícono de marca
+    });
+    img.src=srcs[0];
+  });
+
+  // animated particle network (visible behind dark slides)
+  (function(){
+    const c=document.getElementById('fx');if(!c)return;const ctx=c.getContext('2d');
+    const dpr=Math.min(2,window.devicePixelRatio||1);let w,h,pts,raf;
+    const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+    function resize(){w=c.width=innerWidth*dpr;h=c.height=innerHeight*dpr;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';
+      const n=Math.max(26,Math.min(64,Math.round(innerWidth/26)));
+      pts=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.2*dpr,vy:(Math.random()-.5)*.2*dpr}));}
+    function render(){ctx.clearRect(0,0,w,h);const maxd=155*dpr;
+      for(let i=0;i<pts.length;i++){const p=pts[i];
+        for(let j=i+1;j<pts.length;j++){const q=pts[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.hypot(dx,dy);
+          if(d<maxd){ctx.strokeStyle='rgba(150,180,160,'+(0.10*(1-d/maxd)).toFixed(3)+')';ctx.lineWidth=dpr;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();}}}
+      for(const p of pts){ctx.fillStyle='rgba(196,154,63,.55)';ctx.beginPath();ctx.arc(p.x,p.y,1.7*dpr,0,7);ctx.fill();
+        p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;}}
+    function loop(){render();raf=requestAnimationFrame(loop);}
+    addEventListener('resize',resize);resize();
+    if(reduce){render();}else{loop();document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(raf);else loop();});}
+  })();
+</script>
+</body>
+</html>

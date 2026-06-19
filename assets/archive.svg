@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="abg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#124a39"/><stop offset="100%" stop-color="#05140d"/>
+    </linearGradient>
+    <linearGradient id="acyl" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2E8B70"/><stop offset="100%" stop-color="#103b2c"/>
+    </linearGradient>
+    <linearGradient id="avig" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="40%" stop-color="#05140d" stop-opacity="0"/><stop offset="100%" stop-color="#040f0a" stop-opacity=".9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#abg)"/>
+  <!-- stacked database cylinders (data as asset/vault) -->
+  <g transform="translate(980,250)">
+    <g stroke="#7FD0B4" stroke-opacity=".5">
+      <g fill="url(#acyl)">
+        <path d="M-150 0 a150 42 0 0 0 300 0 v110 a150 42 0 0 1 -300 0 z"/>
+      </g>
+      <g fill="url(#acyl)" transform="translate(0,140)">
+        <path d="M-150 0 a150 42 0 0 0 300 0 v110 a150 42 0 0 1 -300 0 z"/>
+      </g>
+      <g fill="url(#acyl)" transform="translate(0,280)">
+        <path d="M-150 0 a150 42 0 0 0 300 0 v110 a150 42 0 0 1 -300 0 z"/>
+      </g>
+      <ellipse cx="0" cy="0" rx="150" ry="42" fill="#3aa581"/>
+      <ellipse cx="0" cy="0" rx="150" ry="42" fill="none"/>
+    </g>
+    <!-- glowing data rings -->
+    <ellipse cx="0" cy="0" rx="150" ry="42" fill="none" stroke="#E3A92E" stroke-opacity=".8" stroke-width="3"/>
+  </g>
+  <!-- floating data bits -->
+  <g fill="#E3A92E" font-family="monospace" font-size="26" opacity=".55">
+    <text x="380" y="300">01001</text><text x="430" y="420">1101</text><text x="350" y="540">100110</text>
+    <text x="1320" y="360">0110</text><text x="1300" y="500">10011</text>
+  </g>
+  <g fill="#7FD0B4"><circle cx="520" cy="360" r="5"/><circle cx="500" cy="470" r="5"/><circle cx="1280" cy="420" r="5"/></g>
+  <rect width="1600" height="900" fill="url(#avig)"/>
+</svg>

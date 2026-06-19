@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zamorano · Opciones de diseño</title>
+<style>
+  :root{
+    --serif:Georgia,'Times New Roman',serif;
+    --sans:'Helvetica Neue',Helvetica,'Segoe UI',system-ui,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#3a3a3a;font-family:var(--sans);color:#222;padding:36px 20px 80px}
+  .page{max-width:1060px;margin:0 auto}
+  .optlabel{color:#fff;font-size:13px;letter-spacing:.22em;text-transform:uppercase;margin:40px 0 14px;font-weight:600}
+  .optlabel span{color:#bdbdbd;text-transform:none;letter-spacing:0;font-weight:400;margin-left:10px}
+  .slide{width:100%;aspect-ratio:16/9;overflow:hidden;position:relative;border-radius:4px;
+    container-type:inline-size;box-shadow:0 16px 40px rgba(0,0,0,.42);margin-bottom:16px}
+  .pad{position:absolute;inset:0;padding:6.2% 7%;display:flex;flex-direction:column}
+
+  /* ============ DIRECTION A — EDITORIAL PREMIUM ============ */
+  .A{background:#0C1F18;color:#ECE6D8}
+  .A .klabel{font-size:1.05cqw;letter-spacing:.3em;text-transform:uppercase;color:#C2A24D;font-weight:600}
+  .A .rule{height:1px;background:rgba(236,230,216,.22);margin:auto 0}
+  .A .htitle{font-family:var(--serif);font-weight:400;font-size:6cqw;line-height:1.02;letter-spacing:-.01em}
+  .A .brass{height:2px;width:9cqw;background:#C2A24D;margin:1.6cqw 0}
+  .A .hsub{font-size:1.7cqw;color:#B7C2B8;max-width:30ch;line-height:1.45}
+  .A .foot{display:flex;justify-content:space-between;align-items:flex-end;font-size:1cqw;color:#8C9A8E;letter-spacing:.08em;text-transform:uppercase}
+  .A .seclabel{font-size:1.05cqw;letter-spacing:.28em;text-transform:uppercase;color:#C2A24D;font-weight:600;margin-bottom:.5cqw}
+  .A .sectitle{font-family:var(--serif);font-size:3cqw;font-weight:400;margin-bottom:1.6cqw}
+  .A .row{display:grid;grid-template-columns:2.6fr 5fr 2.5fr;gap:1.6cqw;align-items:baseline;
+    padding:1.05cqw 0;border-top:1px solid rgba(236,230,216,.16)}
+  .A .row:last-child{border-bottom:1px solid rgba(236,230,216,.16)}
+  .A .co{font-family:var(--serif);font-size:1.75cqw;letter-spacing:.02em}
+  .A .desc{font-size:1.3cqw;color:#C5CEC4;line-height:1.35}
+  .A .desc .src{display:block;font-size:.98cqw;color:#7E8C80;margin-top:.25cqw;font-style:italic}
+  .A .metric{font-size:1.8cqw;color:#C2A24D;text-align:right}
+
+  /* ============ DIRECTION B — CORPORATE CLEAN ============ */
+  .B{background:#F6F4EE;color:#1A1F25}
+  .B .klabel{font-size:1.05cqw;letter-spacing:.2em;text-transform:uppercase;color:#16294A;font-weight:700}
+  .B .navline{height:3px;width:7cqw;background:#16294A;margin:1.5cqw 0}
+  .B .htitle{font-size:5.6cqw;line-height:1.02;font-weight:700;letter-spacing:-.02em;color:#16294A}
+  .B .hsub{font-size:1.6cqw;color:#54616F;max-width:34ch;line-height:1.45;margin-top:1.2cqw}
+  .B .foot{margin-top:auto;display:flex;gap:2cqw;align-items:flex-end;justify-content:space-between}
+  .B .mstrip{display:flex;gap:3cqw}
+  .B .m b{display:block;font-size:2.7cqw;font-weight:700;color:#16294A;line-height:1}
+  .B .m span{font-size:1.05cqw;color:#6B7682;letter-spacing:.03em}
+  .B .pagenum{font-size:1cqw;color:#9AA2AC;letter-spacing:.1em}
+  .B .seclabel{font-size:1.05cqw;letter-spacing:.2em;text-transform:uppercase;color:#16294A;font-weight:700}
+  .B .sectitle{font-size:2.9cqw;font-weight:700;color:#16294A;margin:.4cqw 0 1.5cqw;letter-spacing:-.01em}
+  .B table{width:100%;border-collapse:collapse}
+  .B td,.B th{text-align:left;padding:1cqw .4cqw;vertical-align:baseline}
+  .B thead th{font-size:1cqw;text-transform:uppercase;letter-spacing:.12em;color:#8A939E;font-weight:600;border-bottom:1.5px solid #16294A}
+  .B tbody tr{border-bottom:1px solid #DAD6CC}
+  .B .co{font-weight:700;font-size:1.45cqw}
+  .B .qd{font-size:1.25cqw;color:#54616F}
+  .B .dt{font-size:1.45cqw;font-weight:700;color:#16294A;white-space:nowrap}
+  .B .src{font-size:.95cqw;color:#9AA2AC;font-weight:400}
+  .B .callout{margin-top:1.3cqw;font-size:1.25cqw;color:#54616F}
+  .B .callout b{color:#16294A}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="optlabel">Opción A — Editorial premium <span>· serif, fondo profundo, estilo informe (The Economist)</span></div>
+
+  <div class="slide A"><div class="pad">
+    <div class="klabel">Universidad Zamorano · Delegación Europa 2026</div>
+    <div class="rule"></div>
+    <div>
+      <div class="htitle">El mundo que viene</div>
+      <div class="brass"></div>
+      <div class="hsub">Avance tecnológico, inteligencia artificial y la dirección del futuro.</div>
+    </div>
+    <div class="rule"></div>
+    <div class="foot"><span>Panorama 2026</span><span>01</span></div>
+  </div></div>
+
+  <div class="slide A"><div class="pad" style="justify-content:flex-start">
+    <div class="seclabel">El frente tecnológico</div>
+    <div class="sectitle">Quién define la dirección — y con qué cifras</div>
+    <div class="row"><div class="co">NVIDIA</div><div class="desc">La infraestructura de cómputo de la era de la IA.<span class="src">NVIDIA · resultados FY2026</span></div><div class="metric">US$5 B valor</div></div>
+    <div class="row"><div class="co">OpenAI</div><div class="desc">ChatGPT, la adopción tecnológica más rápida de la historia.<span class="src">OpenAI · 2026</span></div><div class="metric">900 M / sem.</div></div>
+    <div class="row"><div class="co">Google DeepMind</div><div class="desc">AlphaFold predice la estructura de las proteínas con IA.<span class="src">Premio Nobel de Química · 2024</span></div><div class="metric">Nobel 2024</div></div>
+    <div class="row"><div class="co">Microsoft</div><div class="desc">Copilot e IA agéntica en el trabajo diario.<span class="src">Microsoft · 2026</span></div><div class="metric">80% Fortune 500</div></div>
+    <div class="row"><div class="co">Palantir</div><div class="desc">De datos dispersos a decisiones operativas (AIP).<span class="src">Palantir · Q3 2025</span></div><div class="metric">+121% i.a.</div></div>
+  </div></div>
+
+  <div class="optlabel">Opción B — Corporate clean <span>· claro, navy, orientado a datos (estilo consultoría)</span></div>
+
+  <div class="slide B"><div class="pad">
+    <div class="klabel">Universidad Zamorano · Delegación Europa 2026</div>
+    <div class="navline"></div>
+    <div class="htitle">El mundo<br>que viene</div>
+    <div class="hsub">Avance tecnológico, inteligencia artificial y la dirección del futuro.</div>
+    <div class="foot">
+      <div class="mstrip">
+        <div class="m"><b>US$4.4 B</b><span>impacto anual potencial de la IA</span></div>
+        <div class="m"><b>2026</b><span>panorama global</span></div>
+      </div>
+      <div class="pagenum">01</div>
+    </div>
+  </div></div>
+
+  <div class="slide B"><div class="pad" style="justify-content:flex-start">
+    <div class="seclabel">El frente tecnológico</div>
+    <div class="sectitle">Quién define la dirección</div>
+    <table>
+      <thead><tr><th style="width:21%">Compañía</th><th style="width:47%">Qué construye</th><th style="width:32%">Dato</th></tr></thead>
+      <tbody>
+        <tr><td class="co">NVIDIA</td><td class="qd">Infraestructura de cómputo de la IA</td><td class="dt">US$5 B valor <span class="src">· FY2026</span></td></tr>
+        <tr><td class="co">OpenAI</td><td class="qd">ChatGPT, adopción récord</td><td class="dt">900 M/sem. <span class="src">· 2026</span></td></tr>
+        <tr><td class="co">Google DeepMind</td><td class="qd">AlphaFold: IA para la biología</td><td class="dt">Nobel 2024 <span class="src">· Química</span></td></tr>
+        <tr><td class="co">Microsoft</td><td class="qd">Copilot e IA agéntica</td><td class="dt">80% Fortune 500 <span class="src">· 2026</span></td></tr>
+        <tr><td class="co">Palantir</td><td class="qd">Datos → decisión (AIP)</td><td class="dt">+121% i.a. <span class="src">· Q3 2025</span></td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><b>Contexto:</b> la IA podría aportar hasta <b>US$4.4 billones</b> anuales a la economía global. <span class="src">McKinsey</span></div>
+  </div></div>
+
+</div>
+</body>
+</html>

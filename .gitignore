@@ -1,0 +1,11 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+
+# temporales
+*.tmp
+hand-*.jpg
+*.bak
+*.bak2

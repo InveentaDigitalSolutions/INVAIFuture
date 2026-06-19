@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="lsky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0c3526"/><stop offset="55%" stop-color="#1b5a40"/><stop offset="100%" stop-color="#E3A92E" stop-opacity=".25"/>
+    </linearGradient>
+    <radialGradient id="lsun" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F2C75A"/><stop offset="45%" stop-color="#E3A92E" stop-opacity=".85"/><stop offset="100%" stop-color="#E3A92E" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lvig" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="45%" stop-color="#06180f" stop-opacity="0"/><stop offset="100%" stop-color="#05140d" stop-opacity=".9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#lsky)"/>
+  <!-- rising sun -->
+  <circle cx="800" cy="540" r="340" fill="url(#lsun)"/>
+  <circle cx="800" cy="540" r="120" fill="#F4D27A" fill-opacity=".9"/>
+  <!-- horizon hills -->
+  <path d="M0 600 Q 400 540 800 580 T 1600 560 V900 H0 Z" fill="#0e3b2e"/>
+  <path d="M0 660 Q 500 600 1000 650 T 1600 630 V900 H0 Z" fill="#0a2c20"/>
+  <!-- forward path / compass road -->
+  <path d="M740 900 L790 640 L810 640 L860 900 Z" fill="#E3A92E" fill-opacity=".55"/>
+  <g stroke="#F4D27A" stroke-opacity=".7" stroke-width="6" stroke-dasharray="22 26">
+    <line x1="800" y1="880" x2="800" y2="650"/>
+  </g>
+  <rect width="1600" height="900" fill="url(#lvig)"/>
+</svg>

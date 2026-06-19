@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <radialGradient id="cbg" cx="68%" cy="30%" r="90%">
+      <stop offset="0%" stop-color="#16563f"/>
+      <stop offset="55%" stop-color="#0E3B2E"/>
+      <stop offset="100%" stop-color="#072017"/>
+    </radialGradient>
+    <radialGradient id="cglow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#E3A92E" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#E3A92E" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cvig" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="40%" stop-color="#072017" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#061b13" stop-opacity=".85"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#cbg)"/>
+  <!-- globe -->
+  <g transform="translate(1060,420)" fill="none" stroke="#2E8B70" stroke-opacity=".5">
+    <circle r="300" stroke-opacity=".35"/>
+    <ellipse rx="300" ry="120"/><ellipse rx="300" ry="220"/><ellipse rx="120" ry="300"/><ellipse rx="220" ry="300"/>
+    <circle r="300" stroke="#3aa581" stroke-opacity=".25"/>
+  </g>
+  <circle cx="1060" cy="420" r="320" fill="url(#cglow)"/>
+  <!-- nodes + links -->
+  <g stroke="#7FD0B4" stroke-opacity=".5" stroke-width="1.5">
+    <line x1="790" y1="300" x2="1060" y2="200"/><line x1="1060" y1="200" x2="1300" y2="330"/>
+    <line x1="1300" y1="330" x2="1230" y2="560"/><line x1="1230" y1="560" x2="960" y2="640"/>
+    <line x1="960" y1="640" x2="820" y2="470"/><line x1="820" y1="470" x2="790" y2="300"/>
+  </g>
+  <g fill="#E3A92E">
+    <circle cx="790" cy="300" r="7"/><circle cx="1060" cy="200" r="9"/><circle cx="1300" cy="330" r="7"/>
+    <circle cx="1230" cy="560" r="8"/><circle cx="960" cy="640" r="7"/><circle cx="820" cy="470" r="6"/>
+  </g>
+  <g fill="#9be3c6"><circle cx="1130" cy="360" r="4"/><circle cx="980" cy="300" r="4"/><circle cx="1180" cy="490" r="4"/><circle cx="900" cy="540" r="4"/></g>
+  <!-- orbit arc -->
+  <path d="M620 540 A 520 520 0 0 1 1500 250" fill="none" stroke="#E3A92E" stroke-opacity=".5" stroke-width="2.5"/>
+  <rect width="1600" height="900" fill="url(#cvig)"/>
+</svg>

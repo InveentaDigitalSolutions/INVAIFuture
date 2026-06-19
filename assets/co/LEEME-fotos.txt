@@ -1,0 +1,12 @@
+FOTOS DE LAS COMPAÑÍAS (banner de cada tarjeta)
+================================================
+Arrastra una foto horizontal a esta carpeta /assets/co con EXACTAMENTE
+estos nombres y aparecerá como banner de esa compañía. Si falta alguna,
+se ve un degradado del color de la marca (igual queda bien).
+
+nvidia.jpg · openai.jpg · anthropic.jpg · deepmind.jpg · meta.jpg
+microsoft.jpg · amazon.jpg · palantir.jpg · tesla.jpg · spacex.jpg
+
+Sugerencias de imagen: un chip (NVIDIA), un cohete/Starship (SpaceX),
+el robot Optimus o un robotaxi (Tesla), un centro de datos (Amazon/Microsoft),
+una molécula/proteína (DeepMind), etc.

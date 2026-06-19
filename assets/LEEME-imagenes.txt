@@ -1,0 +1,16 @@
+IMÁGENES DE LA PRESENTACIÓN — Zamorano
+=======================================
+Los slides CONCEPTUALES ya tienen ilustración propia (archivos .svg):
+cover, world, society, data-center, archive, leap, close.  → NO necesitas hacer nada con esos.
+
+FALTAN SOLO TUS FOTOS para 5 slides. Arrastra cada foto a esta carpeta /assets
+con EXACTAMENTE este nombre (formato .jpg, horizontal, 1920x1080+):
+
+field.jpg       → "03 · El agro ya cambió"  (foto tuya del viaje: campo / invernadero)
+case-deere.jpg  → Caso John Deere           (tractor autónomo)
+case-bayer.jpg  → Caso Bayer                 (foto tuya de la visita a Bayer/Monheim)
+case-lely.jpg   → Caso Lely                  (foto tuya del robot de ordeño Lely)
+case-sap.jpg    → Caso SAP                   (pantalla/tablero de software u oficina)
+
+Si no pones alguna, ese slide se ve igual con su degradado verde.
+Tus fotos del viaje (Lely, Bayer, campo) son las de mayor impacto.
